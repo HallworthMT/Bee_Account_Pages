@@ -1,0 +1,1227 @@
+---
+output:
+  html_document:
+    fig_caption: yes
+    force_captions: yes
+    highlight: pygments
+    theme: paper
+    css: ["C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/template/css/bootstrap-theme.css","C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/template/css/bootstrap.css"]
+  pdf_document: default
+  word_document:
+    reference_docx: ../template/word-styles-reference-01.docx
+editor_options: 
+  chunk_output_type: console
+params:
+  species: 
+    value: x
+  genus:
+    value: x
+  subgenus:
+    value: 
+  s_rank:
+    value: 
+  common_name:
+    value: "no common name"
+  account:
+    value: ""
+  locationUncertainty:
+    value: 250
+---
+<style>
+.center {
+  text-align: center;
+}
+
+</style>
+
+
+<div class="row">
+<div class="col-xs-12 center-block text-center">
+<p style="font-size: 32pt; text-align: center; width: 100%;"><strong>Vermont's Encyclopedia of Life</strong></p>
+</div>
+</div>
+
+```{css, echo = FALSE, eval = TRUE}
+/* see https://github.com/rstudio/rmarkdown/issues/1949 */
+
+.leaflet-layer  {
+    min-width: 400px;
+}
+.leaflet-tile-container {
+    width: 100%;
+}
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# READ IN PACKAGES AND GET DATA FROM GBIF
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/01_species_account_load_packages_data_from_GBIF.R");
+
+NumiNatRecords <- length(grep(pattern = "inaturalist", x = samp_spp$occurrenceID))
+```
+
+```{r echo = FALSE, warnings = FALSE}
+# Gather phenology info
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/02_species_account_phenology.R")
+```
+
+```{r, echo = FALSE, message = FALSE, results = 'hide', error = FALSE, warning = FALSE}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/03_species_account_iNat_photos.R")
+```
+
+```{r echo = FALSE, message = FALSE, error = FALSE, warning = FALSE, results='hide'}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/04_species_account_AssociatedTaxa.R")
+```
+
+<div class="row">
+ <div class="col-xs-6">
+ <p style="text-align: center; font-size: 32pt;"> <i>`r params$species`</i> </p>
+ <p style="text-align: left; font-size: 16pt;"><strong>S-rank:</strong> `r params$s_rank`</p>  
+ <p style="text-align: left; font-size: 16pt;"><strong>Genus:</strong> `r params$genus` `r params$subgenus`</p>    
+  
+<p style="text-align: left; font-size: 16pt;"><strong>Common name:</strong> `r params$common_name`</p>
+<p style="text-align: left; font-size: 14pt;"><strong>First VT record:</strong> `r min(samp_spp$year,na.rm = TRUE)`</p>
+<p style="text-align: left; font-size: 14pt;"><strong>Last VT record:</strong> `r max(samp_spp$year,na.rm = TRUE)`</p>
+
+</div>
+
+<div class = "col-xs-6">
+<img style="padding: 3px 3px 0px 3px;" src=`r imgURL` alt=`r iNatPhotos$results$taxon$species`></img>
+<p style="text-align: center; font-size: 12pt;"> `r imageCredit`</p>
+ </div>
+</div>
+
+<div class = "row">
+<div class="container" style="border-radius: 10px; background-color: lightgray; padding: 5px 5px 5px 5px; border: 1px solid; box-shadow: 5px 5px #888888;">
+<p style="text-align: left; font-size: 14pt;"> `r params$account` </p>
+</div>
+</div>
+
+<div class="row">
+<div class = "col-xs-5">
+<p style="font-size: 16pt;"><strong>Phenology</strong></p><i class="fa-solid fa-circle-info"></i>
+ 
+```{r, echo = FALSE, dpi = 400, warning = FALSE, comment = NA}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/05_species_account_Plot_phenology.R")
+```
+</div>
+
+<div class = "col-xs-7">
+<p style="font-size: 16pt;"><strong>Flower interactions:</strong></p>   
+```{r message = FALSE, error = FALSE, warning = FALSE, echo = FALSE, comment = NA}
+if(nrow(AssociatedTaxa)!=0){
+library(kableExtra)
+kableExtra::kbl(BeePropData[,c("Vegetation","Observations","Proportion","imgURL")], row.names = FALSE,
+                center = FALSE,
+                caption = "",
+                align = c("l","c","c","c"),
+                col.names = c("Vegetation",
+                              "Observations",
+                              "Proportion",
+                              "Image"),
+                format = "html",
+                midrule = "c",
+                escape = FALSE) %>%
+     kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                   font_size = 18) %>%
+    kableExtra::scroll_box(height = "350px")}else{
+ cat("<p> No interaction data are available for this species</p>")
+}
+```
+
+</div>
+</div>
+
+<div class = "row h-50">
+<div class="col-xs-12 center-block text-center">
+<p style="font-size: 16pt; text-align: center;"><strong>Vermont observations</strong></p>
+
+```{r, echo = FALSE, error = FALSE, message = FALSE, warning = FALSE,out.width = '95%'}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/06_species_account_Plot_yearlyrecords.R")
+```
+
+</div> 
+</div>
+
+<div class = "row h-100">
+<div class="col-xs-12">
+<p style="font-size: 16pt; text-align: center;"><strong>Distribution</strong></p>
+
+```{r eval = FALSE, echo = FALSE, message = FALSE, dpi=400, out.height="90%"}
+library(rgbif)
+library(sf)
+library(raster)
+library(DBI)
+library(RPostgres)
+library(rpostgis)
+library(dbplyr)
+library(dplyr)
+library(rgdal)
+library(dismo)
+library(ENMeval)
+library(doSNOW)
+library(spatstat)
+library(rgbif)
+library(mapview)
+library(jsonlite)
+library(leaflet)
+
+GBIFDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-gbif-data',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+DISTDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-sdm-current',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+VTshape <- sf::st_read(GBIFDb,
+                       "vt_boundary_river_lake")
+VTtowns <- sf::st_read(GBIFDb,
+                       "towns")
+
+pg_species <- tolower(params$species)
+pg_species <- gsub(x = pg_species, pattern = " ", replacement = "_")
+
+# Current distributions are found here C:\Users\mhall\State_Of_Biodiversity\SDM_NewEngland\SDM_tiffs_dists
+sppDistsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_dists",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+sppDistValue <- grep(sppDistsFiles, pattern = pg_species, value = TRUE)
+
+#if(pg_species %in% dbListTables(DISTDb)){
+#sppDist <- pgGetRast(DISTDb,pg_species)
+if(identical(sppDistValue,character(0))){
+  par(mar = c(0.5,0.5,0.5,0.5))
+  plot(VTshape$geometry)
+  plot(VTtowns$geometry, add = TRUE, border = "gray88")
+  points(samp_spp$decimalLongitude,
+       samp_spp$decimalLatitude,
+       pch = "*")
+  plot(VTshape$geometry, add = TRUE)
+
+}else{
+  sppDist <- raster::raster(sppDistValue[1])
+sppDist <- raster::mask(sppDist, as(VTshape$geometry,"Spatial"))
+par(mar = c(0.5,0.5,0.5,0.5))
+plot(VTshape$geometry)
+plot(sppDist, add = TRUE, col = c("white","forestgreen"), legend = FALSE)
+plot(VTtowns$geometry, add = TRUE, border = "gray88")
+points(samp_spp$decimalLongitude,
+       samp_spp$decimalLatitude,
+       pch = "*")
+plot(VTshape$geometry, add = TRUE)
+  }
+```
+
+```{r eval = FALSE, echo = FALSE, message = FALSE, out.width = '95%', warning = FALSE}
+library(rgbif)
+library(sf)
+library(raster)
+library(DBI)
+library(RPostgres)
+library(rpostgis)
+library(dbplyr)
+library(dplyr)
+library(rgdal)
+library(dismo)
+library(ENMeval)
+library(doSNOW)
+library(spatstat)
+library(rgbif)
+library(mapview)
+library(jsonlite)
+library(leaflet)
+
+GBIFDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-gbif-data',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+DISTDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-sdm-current',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+VTshape <- sf::st_read(GBIFDb,
+                       "vt_boundary_river_lake")
+VTtowns <- sf::st_read(GBIFDb,
+                       "towns")
+
+pg_species <- tolower(params$species)
+pg_species <- gsub(x = pg_species, pattern = " ", replacement = "_")
+
+# Current distributions are found here C:\Users\mhall\State_Of_Biodiversity\SDM_NewEngland\SDM_tiffs_dists
+sppDistsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_dists",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+sppDistValue <- grep(sppDistsFiles, pattern = pg_species, value = TRUE)
+
+
+sppProbsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_current",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+sppProbsValue <- grep(sppProbsFiles, pattern = pg_species, value = TRUE)
+
+#if(pg_species %in% dbListTables(DISTDb)){
+#sppDist <- pgGetRast(DISTDb,pg_species)
+if(identical(sppDistValue,character(0))){
+leaflet(VTshape, height = 1000, width = 1000) %>% 
+  setView(lng = -72.67, lat = 44.07, zoom = 7) %>%
+  # Base groups
+  addProviderTiles(providers$CartoDB.Positron, group = "Positron") %>% 
+  addProviderTiles(providers$CartoDB.Voyager, group = "Voyager") %>% 
+  addProviderTiles(providers$Esri.WorldShadedRelief, group = "ShadedRelief") %>% 
+  addTiles(group = "OpenStreetMap") %>%
+  addMapPane("obs_top", zIndex = 420) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas, group = "GrayCanvas") %>%
+  # add the contour lines #
+  addPolygons(stroke=TRUE, 
+              weight = 1, 
+              color = "gray", 
+              fillColor = "transparent",
+              group = "Predictions") %>% 
+    
+  # add darner observations #
+  addCircleMarkers(lng = samp_spp$decimalLongitude,
+                   lat = samp_spp$decimalLatitude,
+                   #label = "Anax junius",
+                   label = samp_spp$species,
+                   color = ifelse(samp_spp$sex=="FEMALE","black","blue"),
+                   fillColor = ifelse(samp_spp$sex=="FEMALE","black","blue"),
+                   group = "Occurrence Observations",
+                   options = pathOptions(pane="obs_top"),
+                   weight = 1, 
+                   radius = 3,
+                   popup = paste("Observed on: ",paste0(samp_spp$month,"-",samp_spp$day,"-",samp_spp$year),"<br> recorded by: ", samp_spp$recordedBy,"<br> <a href=",samp_spp$obs_url," target=_blank>Observation record</a><br><img src=",samp_spp$photo,">")) %>%
+  # add the legend 
+
+   addLayersControl(
+    baseGroups = c("Positron","Voyager","ShadedRelief","OpenStreetMap","GrayCanvas"),
+    overlayGroups = c("Current Distribution", "Current Suitability", "Occurrence Observations"),
+    position = "bottomright",
+    options = layersControlOptions(collapsed = FALSE)
+  ) 
+
+}else{
+  sppDist <- raster::raster(sppDistValue[1])
+sppDist <- raster::mask(sppDist, as(VTshape$geometry,"Spatial"))
+
+sppCurrent <- raster::raster(sppProbsValue[1])
+sppCurrent <- raster::mask(sppCurrent, as(VTshape$geometry,"Spatial"))
+
+leaflet(VTshape) %>% 
+  setView(lng = -72.67, lat = 44.07, zoom = 7) %>%
+  # Base groups
+  addProviderTiles(providers$CartoDB.Positron, group = "Positron") %>% 
+  addProviderTiles(providers$CartoDB.Voyager, group = "Voyager") %>% 
+  addProviderTiles(providers$Esri.WorldShadedRelief, group = "ShadedRelief") %>% 
+  addTiles(group = "OpenStreetMap") %>%
+  addMapPane("obs_top", zIndex = 420) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas, group = "GrayCanvas") %>%
+  # add the contour lines #
+  addPolygons(stroke=TRUE, 
+              weight = 1, 
+              color = "gray", 
+              fillColor = "transparent",
+              group = "Occurrence Observations") %>% 
+ 
+  # add the raster image 
+  addRasterImage(sppDist, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = "Distribution") %>%
+    addRasterImage(sppCurrent, 
+                 colors = viridis::viridis(n=100, option="H"), 
+                 opacity = 0.5,
+                 group = "Suitability") %>%
+   addLegend(colors = viridis::viridis(11,option="H", direction = -1), 
+            labels = format(round(abs(seq(-1,0,0.1)),2),nsmall=1),
+            group = "Suitability",
+            position = "topleft",
+            title = "Habitat <br> Suitability") %>%
+  # add darner observations #
+  addCircleMarkers(lng = samp_spp$decimalLongitude,
+                   lat = samp_spp$decimalLatitude,
+                   #label = "Anax junius",
+                   label = samp_spp$species,
+                   color = ifelse(samp_spp$sex=="FEMALE","black","blue"),
+                   fillColor = ifelse(samp_spp$sex=="FEMALE","black","blue"),
+                   group = "Occurrence Observations",
+                   options = pathOptions(pane="obs_top"),
+                   weight = 1, 
+                   radius = 3,
+                   popup = paste("Observed on: ",paste0(samp_spp$month,"-",samp_spp$day,"-",samp_spp$year),"<br> recorded by: ", samp_spp$recordedBy,"<br> <a href=",samp_spp$obs_url," target=_blank>Observation record</a><br><img src=",samp_spp$photo,">")) %>%
+
+   addLayersControl(
+    baseGroups = c("Positron","Voyager","ShadedRelief","OpenStreetMap","GrayCanvas"),
+    overlayGroups = c("Distribution", "Suitability", "Occurrence Observations"),
+    position = "bottomright",
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+  hideGroup("Suitability")
+  }
+
+```
+
+```{r echo = FALSE, message = FALSE, out.width='100%', warning = FALSE}
+library(rgbif)
+library(sf)
+library(raster)
+library(DBI)
+library(RPostgres)
+library(rpostgis)
+library(dbplyr)
+library(dplyr)
+library(rgdal)
+library(dismo)
+library(ENMeval)
+library(doSNOW)
+library(spatstat)
+library(rgbif)
+library(mapview)
+library(jsonlite)
+library(leaflet)
+
+GBIFDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-gbif-data',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+DISTDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-sdm-current',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+VTshape <- sf::st_read(GBIFDb,
+                       "vt_boundary_river_lake")
+VTtowns <- sf::st_read(GBIFDb,
+                       "towns")
+
+pg_species <- tolower(params$species)
+pg_species <- gsub(x = pg_species, pattern = " ", replacement = "_")
+
+# Current distributions are found here C:\Users\mhall\State_Of_Biodiversity\SDM_NewEngland\SDM_tiffs_dists
+sppDistsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_dists",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+sppDistValue <- grep(sppDistsFiles, pattern = pg_species, value = TRUE)
+
+
+sppProbsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_current",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+sppProbsValue <- grep(sppProbsFiles, pattern = pg_species, value = TRUE)
+
+
+# Current distributions are found here C:\Users\mhall\State_Of_Biodiversity\SDM_NewEngland\SDM_tiffs_dists
+futDistsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_futures",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+futDistValue <- grep(futDistsFiles, pattern = pg_species, value = TRUE)
+
+
+futProbsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_predictions",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+futProbsValue <- grep(futProbsFiles, pattern = pg_species, value = TRUE)
+
+#if(pg_species %in% dbListTables(DISTDb)){
+#sppDist <- pgGetRast(DISTDb,pg_species)
+if(!identical(sppDistValue,character(0))){
+  library(leaflet.extras2)
+  
+sppDist <- raster::raster(sppDistValue[1])
+sppDist <- raster::mask(sppDist, as(VTshape$geometry,"Spatial"))
+
+sppCurrent <- raster::raster(sppProbsValue[1])
+sppCurrent <- raster::mask(sppCurrent, as(VTshape$geometry,"Spatial"))
+
+futDist <- raster::brick(futDistValue[1])
+futDist <- raster::mask(futDist, as(VTshape$geometry,"Spatial"))
+
+samp_spp <- samp_spp[!is.na(samp_spp$decimalLatitude),]
+samp_spp$recordedBy[is.na(samp_spp$recordedBy)] <- "Unknown"
+samp_spp$photo[samp_spp$photo == "NA"] <- iNatPhotos$results$taxon$default_photo$url[1]
+
+library(htmltools)
+currentLab <- '<div><p>Left pane: <strong>Current</strong></p></div>'
+futureLab <- '<div><p>Right pane: <strong>Future</strong></p></div>'  
+VCElogo <- paste0('<div><img src=',"https://images.squarespace-cdn.com/content/v1/5de947c69f7a12475df18358/1583966400527-I7HRM9UEZVJQ9NO21L5G/VAL+Final+Shirt+Design.jpg?format=2500w",' width:200 height:600;></div>')
+
+leaflet(VTshape) %>% 
+  setView(lng = -72.67, lat = 44.07, zoom = 7) %>%
+  addMapPane("obs_top", zIndex = 420) %>%
+  addMapPane("right", zIndex = 0) %>%
+  addMapPane("left", zIndex = 0) %>%
+
+  # Base groups
+  addProviderTiles(providers$CartoDB.Positron,
+                   group = "base", layerId = "baseId1",
+                   options = pathOptions(pane = "right")) %>% 
+  addProviderTiles(providers$CartoDB.Positron,
+                   group = "base", layerId = "baseId2",
+                   options = pathOptions(pane = "left")) %>% 
+  # add the raster image 
+  addRasterImage(sppDist, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = "Current Distribution",
+                 options = leafletOptions(pane = "left")) %>%
+  
+  addRasterImage(sppCurrent, 
+                 colors = viridis::viridis(n=100, option="H"), 
+                 opacity = 0.5,
+                 group="Habitat Suitability",
+                 options = leafletOptions(pane = "right")) %>%
+   
+  # Add in the FUTURE DISTRIBUTIONS # 
+  # add the raster image 
+  addRasterImage(futDist[[1]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[1],
+                 options = leafletOptions(pane = "right")) %>%
+  # add the raster image 
+  addRasterImage(futDist[[2]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[2],
+                 options = leafletOptions(pane = "right")) %>%
+    # add the raster image 
+  addRasterImage(futDist[[3]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[3],
+                 options = leafletOptions(pane = "right")) %>%
+      # add the raster image 
+  addRasterImage(futDist[[4]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[4],
+                 options = leafletOptions(pane = "right")) %>%
+       # add the raster image 
+  addRasterImage(futDist[[5]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[5],
+                 options = leafletOptions(pane = "right")) %>%
+    addRasterImage(futDist[[6]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[6],
+                 options = leafletOptions(pane = "right")) %>%
+      addRasterImage(futDist[[7]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[7],
+                 options = leafletOptions(pane = "right")) %>%
+        addRasterImage(futDist[[8]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[8],
+                 options = leafletOptions(pane = "right")) %>%
+          addRasterImage(futDist[[9]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[9],
+                 options = leafletOptions(pane = "right")) %>%
+            addRasterImage(futDist[[10]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[10],
+                 options = leafletOptions(pane = "right")) %>%
+              addRasterImage(futDist[[11]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[11],
+                 options = leafletOptions(pane = "right")) %>%
+              addRasterImage(futDist[[12]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 method = "ngb",
+                 group = names(futDist)[12],
+                 options = leafletOptions(pane = "right")) %>%
+     # add darner observations #
+  addCircleMarkers(lng = samp_spp$decimalLongitude,
+                   lat = samp_spp$decimalLatitude,
+                   label = unique(samp_spp$species),
+                   color = ifelse(samp_spp$sex=="FEMALE","black","blue"),
+                   fillColor = ifelse(samp_spp$sex=="FEMALE","black","blue"),
+                   group = "Occurrence Observations",
+                   options = pathOptions(pane="obs_top"),
+                   layerId = "OccPts",
+                   weight = 1, 
+                   radius = 3,
+                   popup = paste("Observed on: ",paste0(samp_spp$month,"-",samp_spp$day,"-",samp_spp$year),"<br> recorded by: ", samp_spp$recordedBy,"<br> <a href=",samp_spp$obs_url," target=_blank>Observation record</a><br><img src=",samp_spp$photo,">")) %>% 
+   # add a map scalebar
+      
+    addControl(futureLab, position = "bottomright")%>%
+    addControl(currentLab, position = "bottomleft")%>%
+    #addControl(VCElogo, position = "topleft")%>%
+
+  addLayersControl(
+    overlayGroups = c("Current Distribution",
+                      "Habitat Suitability",
+                      "Occurrence Observations",
+                      names(futDist)),
+    position = "topright",
+    options = layersControlOptions(collapsed = TRUE)
+  ) %>%  
+        addScaleBar(position = 'topright') %>%
+    addSidebyside(layerId = "sidecontrols", 
+                rightId = "baseId1",
+                leftId = "baseId2") %>% 
+  hideGroup(c("Habitat Suitability",names(futDist)))
+}else{
+    leaflet(VTshape) %>% 
+  setView(lng = -72.67, lat = 44.07, zoom = 7) %>%
+  addMapPane("obs_top", zIndex = 420) %>%
+    # Base groups
+  addProviderTiles(providers$CartoDB.Positron,
+                   group = "base", layerId = "baseId1") %>% 
+       # add darner observations #
+  addCircleMarkers(lng = samp_spp$decimalLongitude,
+                   lat = samp_spp$decimalLatitude,
+                   label = samp_spp$species,
+                   color = ifelse(samp_spp$sex=="FEMALE" | is.na(samp_spp$sex),"#000000","#000000"),
+                   fillColor = ifelse(samp_spp$sex=="FEMALE"| is.na(samp_spp$sex),"#000000","#000000"),
+                   group = "Occurrence Observations",
+                   options = pathOptions(pane="obs_top"),
+                   layerId = "OccPts",
+                   weight = 1, 
+                   radius = 3,
+                   popup = paste("Observed on: ",paste0(samp_spp$month,"-",samp_spp$day,"-",samp_spp$year),"<br> recorded by: ", samp_spp$recordedBy,"<br> <a href=",samp_spp$obs_url," target=_blank>Observation record</a><br><img src=",samp_spp$photo,">")) %>%
+     addLayersControl(
+    overlayGroups = c("Occurrence Observations"),
+    position = "topright",
+    options = layersControlOptions(collapsed = TRUE)) %>%
+    
+    # addControl(VCElogo, position = "topleft")%>%
+    # add scale bar
+    addScaleBar(position = 'topright')
+  }
+
+```
+</div>
+</div> 
+
+<div class = "row">
+<div class = "col-xs-6">
+<p style="font-size: 16pt;"><strong>Habitat:</p> 
+
+```{r, echo = FALSE, dpi = 400}
+# Query the database to get habitat of observations # 
+
+habitatOcc <- dbGetQuery(GBIFDb,
+                  paste0('SELECT "landcover_discrete",
+                                  COUNT(occurrence."gbifID") as lc_count
+                          FROM occurrence LEFT OUTER JOIN obs_environmental ON (occurrence."species" = obs_environmental."species")
+                          WHERE occurrence."species" = \'',params$species,'\'
+                          AND occurrence."coordinateUncertaintyInMeters" <', params$locationUncertainty,
+                          'GROUP BY "landcover_discrete"'))
+
+# create percentages # 
+habitatOcc$per_occs <- as.numeric(habitatOcc$lc_count)/sum(as.numeric(habitatOcc$lc_count))*100
+
+# table with habitat values # 
+lcClass <- data.frame(lc_code = c(20,30,40,50,60,70,80,90,111,114,115,116,121,124,125,126),
+                      class = c("Shrubs", #20
+                                "Herbaceous Vegetation", #30
+                                "Cultivated Cropland", #40
+                                "Urban/Builtup", #50
+                                "Sparse Vegetation", #60
+                                "Snow/Ice", #70
+                                "Water", #80 
+                                "herbaceous wetland",#90  
+                                "closed evergreen needleleaf",#111  
+                                "closed deciduous forest", #114  
+                                "closed mixed forest", # 115  
+                                "closed unknown forest",#  #116  
+                                "Open evergreen needleleaf",  #121  
+                                "Open deciduous broadleaf forest", #124  
+                                "Open mixed forest", #125  
+                                "Open unknown forest"), #126 
+                      lc_cols = c("#FFBB22", #20
+                                  "#FFFF4C", #30
+                                  "#F096FF", #40
+                                  "#FA0000", #50
+                                  "#B4B4B4", #60
+                                  "#F0F0F0", #70
+                                  "#0032C8", #80
+                                  "#0096A0", #90
+                                  "#58481F", #111
+                                  "#00CC00", #114
+                                  "#4E751F", #115
+                                  "#007800", #116
+                                  "#666000", #121
+                                  "#A0DC00", #124
+                                  "#929900", #125
+                                  "#648C00")) #126
+
+# create new dataframe to fill with zeros but has all data
+HabSpp <- lcClass
+
+# set the values for all habitats to 0 
+HabSpp$Obs <- 0
+
+# fill data 
+HabSpp$Obs[match(habitatOcc$landcover_discrete,HabSpp$lc_code)] <- habitatOcc$per_occs
+
+# create a plot 
+habYlab <- barplot(HabSpp$Obs, horiz = TRUE, plot = FALSE)
+par(mar = c(3,12,1,1))
+barplot(HabSpp$Obs, horiz = TRUE,
+        xlim = c(0,100),
+        xaxt = "n",
+        col = HabSpp$lc_cols)
+axis(2, at = habYlab, labels = HabSpp$class, las = 1, cex.axis = 0.75)
+axis(1, line = -0.75, mgp = c(0,0.25,1), cex.axis = 0.9)
+```
+</div>
+
+<div class = "col-xs-6">
+<p style="font-size: 16pt;"><strong>Elevation:</strong></p> 
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# Query the database to get habitat of observations # 
+
+VTelev <- terra::rast("C:/Users/mhall/State_Of_Biodiversity/spatial_data/srtm_merged.tif")
+VTterra <- terra::vect(as(VTshape,"Spatial"))
+VTelevs <- terra::extract(VTelev, VTterra)
+
+vt_xy <- density(VTelevs$srtm_merged, bw = 0.25)
+
+elevOcc <- dbGetQuery(GBIFDb,
+                  paste0('SELECT "elevation_m" as elev
+                          FROM occurrence LEFT OUTER JOIN obs_environmental ON (occurrence."species" = obs_environmental."species")
+                          WHERE occurrence."species" = \'',params$species,'\'
+                          AND occurrence."coordinateUncertaintyInMeters" <', params$locationUncertainty))
+                          
+# summarize elevation 
+if(length(elevOcc$elev) >= 5){
+elev_xy <- density(as.numeric(elevOcc$elev))
+
+par(bty ="n", mar = c(1,3.8,1,1))
+plot(NA, xlim = c(0,5), ylim = c(0,1400),
+     las = 1, 
+     xaxt = "n",
+     ylab = "Elevation (m)",
+     xlab = "")
+
+polygon(x = vt_xy$y*100,
+        y = vt_xy$x,
+        col = "gray88",
+        border = "gray88")
+
+polygon(x = elev_xy$y*100,
+        y = elev_xy$x,
+        col = "gray50",
+        border = "gray50")
+
+points(x=0, y = median(as.numeric(elevOcc$elev),na.rm = TRUE), pch = 19, cex = 1.25)
+segments(x0 = 0, x1 = 0, 
+         y0 = quantile(as.numeric(elevOcc$elev),0.25),
+         y1 = quantile(as.numeric(elevOcc$elev),0.75))
+}else{
+  cat("Too few observations to create elevational distribution")
+}
+
+```
+</div>
+</div>
+
+<div class = "row">
+<div class = "col-xs-6">
+<p style="font-size: 16pt;"><strong>Sampling:</strong></p> 
+
+```{r, echo = FALSE, message = FALSE, error = FALSE, results = 'hide'}
+
+# Sampling design # 
+library(googlesheets4)
+library(rmarkdown)
+library(jsonlite)
+library(rgbif)
+library(sf)
+library(raster)
+library(DBI)
+library(RPostgres)
+library(rpostgis)
+library(dbplyr)
+library(dplyr)
+library(rgdal)
+library(dismo)
+library(ENMeval)
+library(doSNOW)
+library(spatstat)
+library('Ternary')
+
+
+GBIFDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-gbif-data',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+# link to the google sheet
+google_sheet <- "https://docs.google.com/spreadsheets/d/1MfeCwgbFn2-twocqi3db-2LXreHsBHcABuRtvR6qL0Q/edit#gid=1494373398"
+
+# get the properties of the google sheet
+gs_properties <- sheet_properties(google_sheet)
+
+# read in the sheet of interest 
+protocolSampClass <- range_read(google_sheet, sheet = which(gs_properties$name == "Sampling_protocols_types"))
+
+# Grab the data from our local dataset # 
+bees <- dbGetQuery(GBIFDb,
+                   'SELECT "gbifID","species","speciesKey","genus", "samplingProtocol","eventDate"
+                    FROM occurrence 
+                    WHERE "familyKey" = 4334 OR
+                          "familyKey" = 7901 OR
+                          "familyKey" = 7908 OR
+                          "familyKey" = 4345 OR
+                          "familyKey" = 7905 OR
+                          "familyKey" = 7911;')
+
+# new column for the re-structured protocols 
+bees$newSampProtocol <- NA
+
+# how many are there 
+nProto <- length(unique(protocolSampClass$samplingProtocal))
+
+# use the google sheet to rename them
+for(i in 1:nProto){
+bees$newSampProtocol[which(bees$samplingProtocol == protocolSampClass$samplingProtocal[i])] <- protocolSampClass$Method[i]
+}
+
+# Summarize the new protocol for each species # 
+bsamp <- tapply(bees$gbifID,
+       list(bees$species,
+            bees$newSampProtocol),
+       FUN = function(x){length(unique(x))})
+
+
+# keep only the classes Spencer wants # 
+bsampling <- bsamp[,c("Bowl","Malaise Trap","Net")]
+
+# convert to percentage 
+bSampPercent <- (bsampling/apply(bsampling,1,sum,na.rm = TRUE))*100
+
+# convert NA to zeros 
+bSampPercent[is.na(bSampPercent)] <- 0
+
+# genus color 
+# genus 
+
+
+genus <- unique(bees$genus)
+
+genusCol <- viridis::viridis(n = length(genus),option = "H",alpha = 0.35)
+
+gcolor <- genusCol[match(gsub( " .*$", "",row.names(bSampPercent) ),genus)]
+
+bSampPerDF <- data.frame(bSampPercent,gcolor)
+
+par(mar = c(1,1,1,1), xpd = TRUE)
+TernaryPlot(alab = "Bowl", 
+            blab = "Malaise Trap", 
+            clab = "Net",
+            point = 'up', 
+            lab.cex = 0.8, 
+            grid.minor.lines = 0,
+            grid.lty = 'solid', 
+            col = rgb(0.9, 0.9, 0.9),
+            grid.col = 'gray88', 
+            ticks.length = 0.02,
+            axis.cex = 0.8,
+            axis.col = rgb(0.6, 0.6, 0.6), 
+            ticks.col = rgb(0.6, 0.6, 0.6),
+            axis.rotate = FALSE)
+
+apply(bSampPerDF,
+      1,function(x){
+        if(all(as.numeric(x[1:3])==0)){
+          TernaryPoints(cbind(33,33,33),pch = 19, 
+                        col = rgb(255,255,255,100,max = 255))
+        }else{
+        TernaryPoints(as.numeric(x[1:3]), 
+                      pch = 19, 
+                      col = rgb(150,150,150,100, max = 255))}
+        })
+
+sppXYZ <- bSampPerDF[which(row.names(bSampPerDF) == params$species),]
+
+if(!all(sppXYZ[1:3]==0)){
+TernaryPoints(sppXYZ[1:3],
+              pch = 19,
+              col = "black",
+              cex = 1.25)} 
+```
+</div>
+</div>
+
+<div class = "row">
+<p style="font-size: 32pt; text-align: center; width: 100%;"><strong>Climate Sensitivity</strong></p>
+```{r, message = FALSE, warning = FALSE, error = FALSE, echo = FALSE, out.width = "95%"}
+
+sppName <- tolower(params$species)
+sppName <- gsub(pattern = " ", replacement = "_", sppName)
+
+rmm_files <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/ENMeval")
+
+hasSDM <- any(grep(pattern = sppName, rmm_files))
+
+if(hasSDM){
+spp_rmm <- readRDS(paste0("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/ENMeval/",sppName,"_rmm.rds"))
+
+SDMests <- data.table::fread("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_beta_esimates.csv",
+                             drop = c(1),
+                             sep = ",")
+
+sppEsts <- SDMests[SDMests$species==sppName,]
+
+BFM <- sppEsts[sppEsts$delta.AICc==0,]
+
+SDMparam <- data.table::fread("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_variable_permutation_importance.csv")
+
+SDMper <- data.table::fread("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_variable_percent_contribution.csv")
+
+SDMperBFM <- SDMper[SDMper$species==sppName & SDMper$V1==unique(BFM$model),]
+SDMper <- SDMper[SDMper$species==sppName,]
+}
+```
+
+```{r, echo = FALSE, error = FALSE, warning = FALSE, message=FALSE}
+
+barCols <- viridis::viridis(n=38, alpha = 0.8, option = "H")
+par(bty = 'n')
+plot(NA, 
+     ylim = c(0,1), 
+     xlim = c(0,100), 
+     yaxt = "n", 
+     xaxt = "n", 
+     ylab = "",
+     xlab = "Variable Importance")
+axis(1, at = c(0,10,20,30,40,50,60,70,80,90,100),
+     labels = c(0,10,20,30,40,50,60,70,80,90,100))
+BFMpercent <- apply(SDMperBFM[,2:39],1,cumsum)
+midpts <- rep(NA, nrow(BFMpercent))
+for(i in 1:nrow(BFMpercent)){
+if(i == 1){
+midpts[i] <- (0+BFMpercent[i,1])/2
+polygon(x=c(0,0,BFMpercent[i,1],BFMpercent[i,1]),
+        y=c(0,0.5,0.5,0),
+        col = barCols[i],
+        border = barCols[i])}else{
+midpts[i] <- (BFMpercent[i-1,1]+BFMpercent[i,1])/2
+ polygon(x = c(BFMpercent[i-1,1],BFMpercent[i-1,1],BFMpercent[i,1],BFMpercent[i,1]),
+        y=c(0,0.5,0.5,0),
+        col = barCols[i],
+        border = barCols[i])         
+        }
+}
+grt10 <-which(SDMperBFM[,2:39]>10)
+if(length(grt10)==1){
+text(x = midpts[grt10], 
+     y = 0.75,
+     labels = names(SDMperBFM[,2:39])[grt10], 
+     cex = 0.5)
+segments(x0 = midpts[grt10],x1 = midpts[grt10],
+         y0 = 0.25, y1 = 0.72, col = "black")
+}else{
+text(x = midpts[grt10], 
+     y = seq(0.6,0.8,,length(grt10)),
+     labels = names(SDMperBFM[,2:39])[grt10], 
+     cex = 0.5)
+segments(x0 = midpts[grt10],x1 = midpts[grt10],
+         y0 = rep(0.25,length(grt10)), 
+         y1 = seq(0.52,0.77,,length(grt10)),
+         col = "black")
+}
+
+```
+
+
+```{r, eval = FALSE, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+if(hasSDM){
+lambda_means <- tapply(sppEsts$lambda,
+                     sppEsts$var,
+                     mean)
+lambda_sd <- tapply(sppEsts$lambda,
+                     sppEsts$var,
+                     sd)
+
+climSens <- data.frame(variable = names(SDMper)[2:39],
+                       importance = apply(SDMper[,2:39],2,mean),
+                       lambda = lambda_means[match(names(SDMper)[2:39],names(lambda_means))])
+
+
+effSizeIntervals <- c(-1000,-50,-10,-5,-3,-2,-1,-0.5,-0.25,-0.1,0.1,0.25,0.5,1,2,3,5,10,50,1000)
+impVarIntervals <- c(1,2.5,5,10,25,50,75,100)
+
+tmpcols <- vector('list', length(impVarIntervals))
+for(i in 1:length(impVarIntervals)){
+tmpcols[[i]] <- c(viridis::viridis(n=10,option="F",direction = -1, alpha = impVarIntervals[i]/100),
+             viridis::viridis(n=10,option="G",direction = 1, alpha = impVarIntervals[i]/100))
+}
+effCols <- do.call(c,tmpcols)
+xg <- expand.grid(1:20,1:8)
+ec <- findInterval(climSens$lambda,effSizeIntervals)
+vc <- findInterval(climSens$importance,c(0,2.5,5,10,25,50,75,100))
+xgid <- apply(xg, 1, function(x){paste(x,collapse=".")})
+
+kableExtra::kbl(climSens[,c("variable","importance","lambda")],
+                center = FALSE,
+                caption = "",
+                align = c("l","c","c","c"),
+                col.names = c("Variable",
+                              "Importance",
+                              "Effect size"),
+                format = "html",
+                midrule = "c",
+                row.names = FALSE,
+                escape = FALSE) %>%
+     kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                   font_size = 12) %>%
+     column_spec(2, color = "black", background = effCols[match(paste0(ec,".",vc),xgid)]) %>%
+     column_spec(3, color = "black", background = effCols[match(paste0(ec,".",vc),xgid)])
+}
+```
+</div>
+
+<div class = "row">
+```{r echo = FALSE, warning = FALSE, error = FALSE}
+if(hasSDM){
+par(mfrow = c(1,2))
+par(bty = "n")
+par(mar = c(4,8,1,0))
+plot(NA, xlim = c(0,100), ylim = c(1,42-4),
+     xlab = "",
+     yaxt = "n",
+     ylab = "",las = 1, mgp = c(2,0.4,0), tck = -0.01)
+points(y=1:38, x=apply(SDMper[,2:39],2,mean),pch = 19, cex = 1.1, col = "gray")
+segments(y0 = 1:38, y1 = 1:38,
+         x0 = apply(SDMper[,2:39],2,mean)-apply(SDMper[,2:39],2,sd),
+         x1 = apply(SDMper[,2:39],2,mean)+apply(SDMper[,2:39],2,sd),
+         col = "gray")
+
+points(y=1:38, x = SDMperBFM[1,2:39], 
+       col = ifelse(SDMperBFM[1,2:39]==0,"transparent","black"), pch = 20)
+axis(2, at = 1:38, labels = names(SDMper)[2:39],las =2, cex.axis = 0.5)
+
+
+par(bty = "n")
+par(mar = c(4,0,1,1))
+plot(NA, xlim = c(-10,10), ylim = c(1,42-4),
+     xlab = "",
+     yaxt = "n",
+     ylab = "",las = 1, mgp = c(2,0.4,0), tck = -0.01)
+abline(v = 0)
+points(y=match(names(lambda_means),names(SDMper)[2:39]),
+       x=lambda_means, col = "gray", pch = 19)
+segments(y0 = match(names(lambda_means),names(SDMper)[2:39]),
+         y1 = match(names(lambda_means),names(SDMper)[2:39]),
+         x0 = lambda_means-lambda_sd,
+         x1 = lambda_means+lambda_sd,
+         col = "gray")
+points(y=match(BFM$var,names(SDMper)[2:39]), x=BFM$lambda,pch = 20, 
+       col = ifelse(BFM$lambda==0,"transparent","black"))
+#axis(2, at = 1:38, labels = names(SDMper)[2:39],las =2, cex.axis = 0.5)
+}
+```
+</div>
+
+<div class = "row h-100">
+<div class="col-xs-12 center-block text-center">
+<p style="font-size: 16pt; text-align: center;"><strong>Future Projections</strong></p>
+
+
+```{r eval = FALSE, echo = FALSE, message = FALSE, out.width = '95%', warning = FALSE}
+library(rgbif)
+library(sf)
+library(raster)
+library(DBI)
+library(RPostgres)
+library(rpostgis)
+library(dbplyr)
+library(dplyr)
+library(rgdal)
+library(dismo)
+library(ENMeval)
+library(doSNOW)
+library(spatstat)
+library(rgbif)
+library(mapview)
+library(jsonlite)
+library(leaflet)
+
+GBIFDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-gbif-data',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+DISTDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-sdm-current',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+VTshape <- sf::st_read(GBIFDb,
+                       "vt_boundary_river_lake")
+VTtowns <- sf::st_read(GBIFDb,
+                       "towns")
+
+pg_species <- tolower(params$species)
+pg_species <- gsub(x = pg_species, pattern = " ", replacement = "_")
+
+# Current distributions are found here C:\Users\mhall\State_Of_Biodiversity\SDM_NewEngland\SDM_tiffs_dists
+sppDistsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_futures",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+sppDistValue <- grep(sppDistsFiles, pattern = pg_species, value = TRUE)
+
+
+sppProbsFiles <- list.files("C:/Users/mhall/State_Of_Biodiversity/SDM_NewEngland/SDM_tiffs_predictions",
+                            pattern = "*.tif",
+                            full.names = TRUE)
+
+sppProbsValue <- grep(sppProbsFiles, pattern = pg_species, value = TRUE)
+
+#if(pg_species %in% dbListTables(DISTDb)){
+#sppDist <- pgGetRast(DISTDb,pg_species)
+if(!identical(sppDistValue,character(0))){
+  sppDist <- raster::brick(sppDistValue[1])
+sppDist <- raster::mask(sppDist, as(VTshape$geometry,"Spatial"))
+
+
+leaflet(VTshape) %>% 
+  setView(lng = -72.67, lat = 44.07, zoom = 7) %>%
+  # Base groups
+  addProviderTiles(providers$CartoDB.Positron, group = "Positron") %>% 
+  addProviderTiles(providers$CartoDB.Voyager, group = "Voyager") %>% 
+  addProviderTiles(providers$Esri.WorldShadedRelief, group = "ShadedRelief") %>% 
+  addTiles(group = "OpenStreetMap") %>%
+  addMapPane("obs_top", zIndex = 420) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas, group = "GrayCanvas") %>%
+  # add the contour lines #
+  addPolygons(stroke=TRUE, 
+              weight = 1, 
+              color = "gray", 
+              fillColor = "transparent",
+              group = "Occurrence Observations") %>% 
+  # add the raster image 
+  addRasterImage(sppDist[[1]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[1]) %>%
+  # add the raster image 
+  addRasterImage(sppDist[[2]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[2]) %>%
+    # add the raster image 
+  addRasterImage(sppDist[[3]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[3]) %>%
+      # add the raster image 
+  addRasterImage(sppDist[[4]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[4]) %>%
+       # add the raster image 
+  addRasterImage(sppDist[[5]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[5]) %>%
+    addRasterImage(sppDist[[6]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[6]) %>%
+      addRasterImage(sppDist[[7]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[7]) %>%
+        addRasterImage(sppDist[[8]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[8]) %>%
+          addRasterImage(sppDist[[9]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[9]) %>%
+            addRasterImage(sppDist[[10]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[10]) %>%
+              addRasterImage(sppDist[[11]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[11]) %>%
+                addRasterImage(sppDist[[12]]/10000, 
+                 colors = c("transparent","forestgreen"), 
+                 opacity = 0.5,
+                 group = names(sppDist)[12]) %>%
+  # add darner observations #
+  addCircleMarkers(lng = samp_spp$decimalLongitude,
+                   lat = samp_spp$decimalLatitude,
+                   #label = "Anax junius",
+                   label = samp_spp$species,
+                   color = ifelse(samp_spp$sex=="FEMALE","black","blue"),
+                   fillColor = ifelse(samp_spp$sex=="FEMALE","black","blue"),
+                   group = "Occurrence Observations",
+                   options = pathOptions(pane="obs_top"),
+                   weight = 1, 
+                   radius = 3,
+                   popup = paste("Observed on: ",paste0(samp_spp$month,"-",samp_spp$day,"-",samp_spp$year),"<br> recorded by: ", samp_spp$recordedBy,"<br> <a href=",samp_spp$obs_url," target=_blank>Observation record</a><br><img src=",samp_spp$photo,">")) %>%
+
+   addLayersControl(
+    baseGroups = c("Positron","Voyager","ShadedRelief","OpenStreetMap","GrayCanvas"),
+    overlayGroups = c(names(sppDist), "Occurrence Observations"),
+    position = "bottomright",
+    options = layersControlOptions(collapsed = TRUE)
+  ) %>%
+  hideGroup(c("e_26_2011","e_26_2041","e_26_2071"))
+  }
+
+```
+</div>
+</div> 
+

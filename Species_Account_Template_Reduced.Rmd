@@ -1,0 +1,360 @@
+---
+output:
+  html_document:
+    fig_caption: yes
+    force_captions: yes
+    highlight: pygments
+    theme: paper
+    css: ["C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/template/css/bootstrap-theme.css","C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/template/css/bootstrap.css"]
+  pdf_document: default
+  word_document:
+    reference_docx: ../template/word-styles-reference-01.docx
+editor_options: 
+  chunk_output_type: console
+params:
+  species: 
+    value: x
+  genus:
+    value: x
+  subgenus:
+    value: 
+  s_rank:
+    value: 
+  common_name:
+    value: "no common name"
+  account:
+    value: ""
+  locationUncertainty:
+    value: 250
+---
+<style>
+.center {
+  text-align: center;
+}
+
+
+</style>
+
+
+<div class="row">
+<div class="col-xs-12 center-block text-center">
+<p style="font-size: 32pt; text-align: center; width: 100%;"><strong>Vermont's Encyclopedia of Life</strong></p>
+</div>
+</div>
+
+```{css, echo = FALSE, eval = TRUE}
+/* see https://github.com/rstudio/rmarkdown/issues/1949 */
+
+.leaflet-layer  {
+    min-width: 400px;
+}
+.leaflet-tile-container {
+    width: 100%;
+}
+.leaflet-container { 
+    background: #FFFFFF; 
+}
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# READ IN PACKAGES AND GET DATA FROM GBIF
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/01_species_account_load_packages_data_from_GBIF.R");
+
+NumiNatRecords <- length(grep(pattern = "inaturalist", x = samp_spp$occurrenceID))
+```
+
+```{r echo = FALSE, warnings = FALSE}
+# Gather phenology info
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/02_species_account_phenology.R")
+```
+
+```{r, echo = FALSE, message = FALSE, results = 'hide', error = FALSE, warning = FALSE}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/03_species_account_iNat_photos.R")
+```
+
+```{r echo = FALSE, message = FALSE, error = FALSE, warning = FALSE, results='hide'}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/04_species_account_AssociatedTaxa.R")
+```
+
+<div class="row">
+ <div class="col-xs-6">
+ <p style="text-align: center; font-size: 32pt;"> <i>`r params$species`</i> </p>
+ <p style="text-align: left; font-size: 16pt;"><strong>Provisional S-rank:</strong> `r params$s_rank`</p>  
+ <p style="text-align: left; font-size: 16pt;"><strong>Genus:</strong> `r params$genus` `r params$subgenus`</p>    
+  
+<p style="text-align: left; font-size: 16pt;"><strong>Common name:</strong> `r params$common_name`</p>
+<p style="text-align: left; font-size: 14pt;"><strong>First VT record:</strong> `r min(samp_spp$year,na.rm = TRUE)`</p>
+<p style="text-align: left; font-size: 14pt;"><strong>Last VT record:</strong> `r max(samp_spp$year,na.rm = TRUE)`</p>
+<p style="text-align: left; font-size: 14pt;"><strong>VT records:</strong> `r prettyNum(nrow(samp_spp[!is.na(samp_spp$gbifID),]),big.mark = ",")` </p> 
+<p style="text-align: left; font-size: 14pt;"><strong>iNaturalist records:</strong> `r prettyNum(NumiNatRecords,big.mark = ",")`</p>
+</div>
+
+<div class = "col-xs-6">
+<img style="padding: 3px 3px 0px 3px;" src=`r imgURL` alt=`r iNatPhotos$results$taxon$species`></img>
+<p style="text-align: center; font-size: 12pt;"> `r imageCredit`</p>
+ </div>
+</div>
+
+<div class = "row">
+<div class="container" style="border-radius: 10px; background-color: lightgray; padding: 5px 5px 5px 5px; border: 1px solid; box-shadow: 5px 5px #888888;">
+<p style="text-align: left; font-size: 14pt;"> `r params$account` </p>
+</div>
+</div>
+
+<div class="row">
+<div class = "col-xs-5">
+<p style="font-size: 16pt; text-align: center;"><strong>Phenology</strong></p><i class="fa-solid fa-circle-info"></i>
+ 
+```{r, echo = FALSE, dpi = 400, warning = FALSE, comment = NA}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/05_species_account_Plot_phenology.R")
+```
+</div>
+
+<div class = "col-xs-7">
+<p style="font-size: 16pt; text-align: center;"><strong>Flower interactions</strong></p>   
+```{r message = FALSE, error = FALSE, warning = FALSE, echo = FALSE, comment = NA}
+if(nrow(AssociatedTaxa)!=0){
+library(kableExtra)
+kableExtra::kbl(BeePropData[,c("Vegetation","Observations","Proportion")], row.names = FALSE,
+                center = FALSE,
+                caption = "",
+                align = c("l","c","c"),
+                col.names = c("Vegetation",
+                              "Observations",
+                              "Proportion"),
+                format = "html",
+                midrule = "c",
+                escape = FALSE) %>%
+     kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                   font_size = 18) %>%
+    kableExtra::scroll_box(height = "350px")}else{
+ cat("<p> No interaction data are available for this species</p>")
+}
+```
+
+</div>
+</div>
+
+<div class = "row h-50">
+<div class="col-xs-12 center-block text-center">
+<p style="font-size: 16pt; text-align: center;"><strong>Vermont observations</strong></p>
+
+```{r, echo = FALSE, error = FALSE, message = FALSE, warning = FALSE,out.width = '95%'}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/06_species_account_Plot_yearlyrecords.R")
+```
+
+</div> 
+</div>
+
+<div class = "row h-100">
+<div class="col-xs-12">
+<p style="font-size: 16pt; text-align: center;"><strong>Distribution</strong></p>
+
+```{r eval = FALSE, echo = FALSE, message = FALSE, dpi=400, out.height="90%"}
+#THIS CHUNK CREATES A STATIC BASIC MAP
+
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/07_species_account_Plot_vt_locations_towns.R")
+```
+
+```{r eval = TRUE, echo = FALSE, warning = FALSE, message = FALSE}
+
+# THIS CHUNK CREATES A MOUSEOVER OF THE OBSERVATIONS
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/07a_species_account_Plot_vt_locations_towns_mouseover.R")
+```
+
+```{r eval = TRUE, echo = FALSE, warning = FALSE, out.height = "99%"}
+leafletPlot
+```
+
+</div>
+</div> 
+
+<div class = "row">
+<div class = "col-xs-6">
+<p style="font-size: 16pt; text-align: center;"><strong>Habitat</strong></p> 
+
+```{r, echo = FALSE, dpi = 400}
+source("C:/Users/mhall/State_Of_Biodiversity/Bee_Monograph_Hardy_et_al/SpeciesAccount_childs/08_species_account_Plot_habitat_observations.R")
+```
+</div>
+
+<div class = "col-xs-6">
+<p style="font-size: 16pt; text-align: center;"><strong>Elevation</strong></p> 
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# Query the database to get habitat of observations # 
+
+VTelev <- terra::rast("C:/Users/mhall/State_Of_Biodiversity/spatial_data/srtm_merged.tif")
+VTterra <- terra::vect(as(VTshape,"Spatial"))
+VTelevs <- terra::extract(VTelev, VTterra)
+
+vt_xy <- density(VTelevs$srtm_merged, bw = 0.25)
+
+elevOcc <- dbGetQuery(GBIFDb,
+                  paste0('SELECT "elevation_m" as elev
+                          FROM occurrence LEFT OUTER JOIN obs_environmental ON (occurrence."species" = obs_environmental."species")
+                          WHERE occurrence."species" = \'',params$species,'\'
+                          AND occurrence."coordinateUncertaintyInMeters" <', params$locationUncertainty))
+                          
+# summarize elevation 
+if(length(elevOcc$elev) >= 5){
+elev_xy <- density(as.numeric(elevOcc$elev))
+
+par(bty ="n", mar = c(1,3.8,1,1))
+plot(NA, xlim = c(0,5), ylim = c(0,1400),
+     las = 1, 
+     xaxt = "n",
+     ylab = "Elevation (m)",
+     xlab = "")
+
+polygon(x = vt_xy$y*100,
+        y = vt_xy$x,
+        col = "gray88",
+        border = "gray88")
+
+polygon(x = elev_xy$y*100,
+        y = elev_xy$x,
+        col = "gray50",
+        border = "gray50")
+
+points(x=0, y = median(as.numeric(elevOcc$elev),na.rm = TRUE), pch = 19, cex = 1.25)
+segments(x0 = 0, x1 = 0, 
+         y0 = quantile(as.numeric(elevOcc$elev),0.25),
+         y1 = quantile(as.numeric(elevOcc$elev),0.75))
+}else{
+  cat("Too few observations to create elevational distribution")
+}
+
+```
+</div>
+</div>
+
+<div class = "row">
+<div class = "col-xs-12 mx-auto">
+<p style="font-size: 16pt; text-align: center;"><strong>Sampling</strong></p> 
+
+```{r, eval = TRUE, echo = FALSE, message = FALSE, error = FALSE, results = 'hide', dpi = 400}
+
+# Sampling design # 
+library(googlesheets4)
+library(rmarkdown)
+library(jsonlite)
+library(rgbif)
+library(sf)
+library(raster)
+library(DBI)
+library(RPostgres)
+library(rpostgis)
+library(dbplyr)
+library(dplyr)
+library(rgdal)
+library(dismo)
+library(ENMeval)
+library(doSNOW)
+library(spatstat)
+library('Ternary')
+
+
+GBIFDb <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'vt-gbif-data',
+                         host = 'localhost',
+                         port = 5432, # or any other port specified by your DBA
+                         user = "postgres",
+                         password = "password")
+
+# link to the google sheet
+google_sheet <- "https://docs.google.com/spreadsheets/d/1MfeCwgbFn2-twocqi3db-2LXreHsBHcABuRtvR6qL0Q/edit#gid=1494373398"
+
+# get the properties of the google sheet
+gs_properties <- sheet_properties(google_sheet)
+
+# read in the sheet of interest 
+protocolSampClass <- range_read(google_sheet, sheet = which(gs_properties$name == "Sampling_protocols_types"))
+
+# Grab the data from our local dataset # 
+bees <- dbGetQuery(GBIFDb,
+                   'SELECT "gbifID","species","speciesKey","genus", "samplingProtocol","eventDate"
+                    FROM occurrence 
+                    WHERE "familyKey" = 4334 OR
+                          "familyKey" = 7901 OR
+                          "familyKey" = 7908 OR
+                          "familyKey" = 4345 OR
+                          "familyKey" = 7905 OR
+                          "familyKey" = 7911;')
+
+# new column for the re-structured protocols 
+bees$newSampProtocol <- NA
+
+# how many are there 
+nProto <- length(unique(protocolSampClass$samplingProtocal))
+
+# use the google sheet to rename them
+for(i in 1:nProto){
+bees$newSampProtocol[which(bees$samplingProtocol == protocolSampClass$samplingProtocal[i])] <- protocolSampClass$Method[i]
+}
+
+# Summarize the new protocol for each species # 
+bsamp <- tapply(bees$gbifID,
+       list(bees$species,
+            bees$newSampProtocol),
+       FUN = function(x){length(unique(x))})
+
+
+# keep only the classes Spencer wants # 
+bsampling <- bsamp[,c("Bowl","Malaise Trap","Net")]
+
+# convert to percentage 
+bSampPercent <- (bsampling/apply(bsampling,1,sum,na.rm = TRUE))*100
+
+# convert NA to zeros 
+bSampPercent[is.na(bSampPercent)] <- 0
+
+# genus color 
+# genus 
+
+
+genus <- unique(bees$genus)
+
+genusCol <- viridis::viridis(n = length(genus),option = "H",alpha = 0.35)
+
+gcolor <- genusCol[match(gsub( " .*$", "",row.names(bSampPercent) ),genus)]
+
+bSampPerDF <- data.frame(bSampPercent,gcolor)
+
+par(mar = c(1,1,1,1), xpd = TRUE)
+TernaryPlot(alab = "Bowl", 
+            blab = "Malaise Trap", 
+            clab = "Net",
+            point = 'up', 
+            lab.cex = 0.8, 
+            grid.minor.lines = 0,
+            grid.lty = 'solid', 
+            col = rgb(0.9, 0.9, 0.9),
+            grid.col = 'gray88', 
+            ticks.length = 0.02,
+            axis.cex = 0.8,
+            axis.col = rgb(0.6, 0.6, 0.6), 
+            ticks.col = rgb(0.6, 0.6, 0.6),
+            axis.rotate = FALSE)
+
+apply(bSampPerDF,
+      1,function(x){
+        if(all(as.numeric(x[1:3])==0)){
+          TernaryPoints(cbind(33,33,33),pch = 19, 
+                        col = rgb(255,255,255,100,max = 255))
+        }else{
+        TernaryPoints(as.numeric(x[1:3]), 
+                      pch = 19, 
+                      col = rgb(150,150,150,100, max = 255))}
+        })
+
+sppXYZ <- bSampPerDF[which(row.names(bSampPerDF) == params$species),]
+
+if(!all(sppXYZ[1:3]==0)){
+TernaryPoints(sppXYZ[1:3],
+              pch = 19,
+              col = "black",
+              cex = 1.25)} 
+```
+</div>
+</div>
